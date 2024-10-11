@@ -22,8 +22,8 @@ class Product(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = "Продукт"
-        verbose_name_plural = "Продукты"
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
 
 
 class Order(models.Model):
