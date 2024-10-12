@@ -39,6 +39,7 @@ class Order(models.Model):
 
 class Payment(models.Model):
     amount = models.FloatField('Сумма')
+    order = models.OneToOneField('Order', verbose_name='Заказ', related_name='payment', on_delete=models.CASCADE)
     status = EnumField(PaymentStatus, default=PaymentStatus.Unpaid, blank=True)
     type = models.CharField('Тип оплаты', max_length=50, null=True, blank=True)
 

@@ -38,5 +38,8 @@ class PaymentCreateAPIView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         order_id = request.data.get('order')
         order = get_object_or_404(Order, id=order_id)
 
-        payment = Payment.objects.create(amount=order.total_amount)
+        if hasattr(order, 'payment'):
+            raise BadRequest(f"The order has already been paid")
+
+        payment = Payment.objects.create(amount=order.total_amount, order=order)
         return Response(PaymentSerializer(payment).data)
