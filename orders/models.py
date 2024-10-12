@@ -32,6 +32,9 @@ class Order(models.Model):
     date_time_create = models.DateTimeField('Время создания', auto_now_add=True)
     date_time_confirmation = models.DateTimeField('Время подтверждения', null=True, blank=True)
 
+    def __str__(self):
+        return f'Заказ № {self.id}'
+
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
@@ -42,6 +45,9 @@ class Payment(models.Model):
     order = models.OneToOneField('Order', verbose_name='Заказ', related_name='payment', on_delete=models.CASCADE)
     status = EnumField(PaymentStatus, default=PaymentStatus.Unpaid, blank=True)
     type = models.CharField('Тип оплаты', max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return f'Платеж № {self.id}'
 
     class Meta:
         verbose_name = "Платеж"

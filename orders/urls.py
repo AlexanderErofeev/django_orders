@@ -10,4 +10,5 @@ api_router.register(r'payments', views.PaymentCreateAPIView, basename='payments'
 
 urlpatterns = [
     path('api/', include(api_router.urls)),
+    path('confirm_order/<int:order_id>/', views.confirm_order, name='confirm_order'),
 ]

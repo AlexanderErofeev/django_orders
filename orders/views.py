@@ -1,7 +1,12 @@
+import time
+import requests
+from django.http import HttpResponseRedirect
+from django.utils import timezone
 from rest_framework import viewsets, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from orders.models import Product, Order, Payment
+from core.settings import EXTERNAL_ORDER_SERVICE
+from orders.models import Product, Order, Payment, OrderStatus, PaymentStatus
 from orders.serializers import ProductListSerializer, CreateOrderSerializer, OrderSerializer, CreatePaymentSerializer, \
     PaymentSerializer
 from django.core.exceptions import BadRequest
@@ -41,5 +46,28 @@ class PaymentCreateAPIView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         if hasattr(order, 'payment'):
             raise BadRequest(f"The order has already been paid")
 
-        payment = Payment.objects.create(amount=order.total_amount, order=order)
+        payment = Payment.objects.create(status=PaymentStatus.Paid, amount=order.total_amount, order=order)
         return Response(PaymentSerializer(payment).data)
+
+
+def confirm_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.status == OrderStatus.Confirmed:
+        raise BadRequest(f"The order has already been confirmed")
+    elif not (hasattr(order, 'payment') and order.payment.status == PaymentStatus.Paid):
+        raise BadRequest(f"The order has not yet been paid")
+
+    order.status = OrderStatus.Confirmed
+    order.date_time_confirmation = timezone.now()
+    order.save()
+
+    time.sleep(1)
+    data = {
+        "id": order.id,
+        "amount": str(order.total_amount),
+        "date": order.date_time_confirmation.strftime('%Y-%m-%d %H:%M:%S')
+    }
+
+    requests.post(EXTERNAL_ORDER_SERVICE, json=data)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

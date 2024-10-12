@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
 ]
 
+EXTERNAL_ORDER_SERVICE = 'https://webhook.site/36693e00-8f59-4f7b-9a85-1d1e7ddde4d4'
+
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
